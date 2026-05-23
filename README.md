@@ -32,6 +32,7 @@ The skill does not remediate, install tools, clean files, restart services, upda
 ubuntu-server-audit-eu/
 ├── SKILL.md
 ├── README.md
+├── CHANGELOG.md
 ├── references/
 │   ├── L1-runtime-ebpf.md
 │   ├── L2-cis-benchmark.md
@@ -85,6 +86,13 @@ For a fast baseline collection, an agent may run the script over SSH without cop
 ssh core 'bash -s' < scripts/audit-core.sh > core-audit.txt
 ssh edge 'bash -s' < scripts/audit-core.sh > edge-audit.txt
 scripts/generate-report.sh core-audit.txt edge-audit.txt
+```
+
+`generate-report.sh` accepts one or more captured audit outputs:
+
+```bash
+scripts/generate-report.sh core-audit.txt
+scripts/generate-report.sh core-audit.txt edge-audit.txt dmz-audit.txt
 ```
 
 Review and redact local outputs before sharing. Some process lists can expose command-line tokens if applications run with secrets in argv.

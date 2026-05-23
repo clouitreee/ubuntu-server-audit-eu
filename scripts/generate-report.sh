@@ -2,7 +2,12 @@
 set -u
 
 if [ "$#" -lt 1 ]; then
-  printf 'Usage: %s <audit-output> [audit-output...]\n' "$0" >&2
+  printf 'Usage: %s <audit-output> [audit-output...]\n\n' "$0" >&2
+  printf 'Generate a local summary from one or more captured audit outputs.\n' >&2
+  printf 'This script does not SSH and does not modify servers.\n\n' >&2
+  printf 'Examples:\n' >&2
+  printf '  %s core-audit.txt\n' "$0" >&2
+  printf '  %s core-audit.txt edge-audit.txt dmz-audit.txt\n' "$0" >&2
   exit 2
 fi
 
