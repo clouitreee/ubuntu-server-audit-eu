@@ -7,6 +7,20 @@ This project follows a pragmatic versioning model while the skill stabilizes:
 - `0.x`: active design iteration.
 - `1.x`: stable public skill interface and report contract.
 
+## [0.4.0] - 2026-05-23
+
+### Added
+
+- `audit-core.sh --depth quick|standard|deep` for tiered audit scope.
+- `audit-core.sh --with-sudo` for explicit sudo-only read checks using `sudo -n`.
+- Additional read-only evidence for AppArmor, audit rules, time sync, LUKS mapper status, lastlog, core dump limits, firewall rules, effective SSH config, Fail2Ban, and Docker metadata.
+- `references/L8-container-runtime.md` for container runtime evidence and security findings.
+
+### Documented
+
+- `set -e` is intentionally avoided so blocked or failed checks remain visible evidence instead of aborting the audit.
+- Roadmap for structured output, temporal drift comparison, richer report generation, and local asset labels.
+
 ## [0.3.0] - 2026-05-23
 
 ### Added

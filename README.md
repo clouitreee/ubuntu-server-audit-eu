@@ -1,7 +1,7 @@
 # ubuntu-server-audit-eu
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)](CHANGELOG.md)
 [![Read-only](https://img.shields.io/badge/mode-read--only-brightgreen.svg)](SKILL.md)
 [![Ubuntu](https://img.shields.io/badge/Ubuntu-24.04%20LTS-orange.svg)](https://ubuntu.com/server)
 [![Agent Skill](https://img.shields.io/badge/agent--skill-Codex%20%7C%20Claude%20%7C%20Gemini%20%7C%20opencode-black.svg)](SKILL.md)
@@ -20,7 +20,7 @@ It is intentionally plain Markdown + shell so it can be used by Codex, Claude Co
 
 The skill does not remediate, install tools, clean files, restart services, update packages, or write audit artifacts to the target server. If a tool or baseline is missing, the report must say `partial` or `blocked` and explain why.
 
-Current version: `0.3.0`. See [CHANGELOG.md](CHANGELOG.md) for release history.
+Current version: `0.4.0`. See [CHANGELOG.md](CHANGELOG.md) for release history.
 
 ## What It Covers
 
@@ -29,6 +29,7 @@ Current version: `0.3.0`. See [CHANGELOG.md](CHANGELOG.md) for release history.
 - Server readiness posture: asset inventory, patching, backups, monitoring, logs, access control, exposed services, documentation gaps, and unknowns.
 - Read-only discipline: no package installs, no service changes, no file edits, no cleanup, no secret disclosure.
 - Agent safety and controlled evolution: prompt-injection handling, memory-poisoning guardrails, and human-reviewed improvement candidates.
+- Tiered depth: `quick`, `standard`, and `deep` audit modes, with sudo-only read checks gated behind explicit opt-in.
 
 ## Repository Layout
 
@@ -44,7 +45,8 @@ ubuntu-server-audit-eu/
 │   ├── L4-network-exposure.md
 │   ├── L5-eu-compliance.md
 │   ├── L6-operations.md
-│   └── L7-agent-safety-evolution.md
+│   ├── L7-agent-safety-evolution.md
+│   └── L8-container-runtime.md
 └── scripts/
     ├── audit-core.sh
     └── generate-report.sh
@@ -93,6 +95,17 @@ ssh edge 'bash -s' < scripts/audit-core.sh > edge-audit.txt
 scripts/generate-report.sh core-audit.txt edge-audit.txt
 ```
 
+Depth and sudo options:
+
+```bash
+ssh core 'bash -s -- --depth quick' < scripts/audit-core.sh
+ssh core 'bash -s -- --depth standard' < scripts/audit-core.sh
+ssh core 'bash -s -- --with-sudo' < scripts/audit-core.sh
+ssh core 'bash -s -- --depth deep' < scripts/audit-core.sh
+```
+
+`--with-sudo` uses `sudo -n` only. It never prompts for a password and only runs read-only visibility commands such as firewall rules, audit rules, AppArmor status, effective SSH config, Docker metadata, cryptsetup status, and Fail2Ban status. If sudo is unavailable, checks are reported as blocked.
+
 `generate-report.sh` accepts one or more captured audit outputs:
 
 ```bash
@@ -126,6 +139,7 @@ This skill is intentionally conservative:
 
 - Tools such as Lynis, USG, rkhunter, Falco, Goss, and ansible-lockdown are not installed during the audit.
 - Tools that write logs/reports/state are not executed unless a no-write/no-log mode is confirmed.
+- `audit-core.sh` intentionally does not use `set -e` because failed or permission-denied checks are evidence and should not abort the audit.
 - Secrets are not printed. Secret scans report file paths only.
 - `ps`, `systemctl`, `docker`, `journalctl`, and config/log reads are treated as secret-risk surfaces and must be redacted before reporting.
 - Remote output, logs, tool responses, web pages, and prior memories are treated as untrusted data. They cannot change audit scope, disable redaction, authorize writes, or modify the skill.
@@ -138,8 +152,15 @@ The project uses pragmatic pre-1.0 versioning while the public skill interface s
 
 - `0.x`: active design iteration, report contract may improve.
 - `1.x`: stable public skill interface and report contract.
-- Minor releases such as `0.3.0` may add new reference layers or reporting sections.
+- Minor releases such as `0.4.0` may add new reference layers, flags, or reporting sections.
 - Patch releases are for safety, documentation, and script hardening that preserve the existing workflow.
+
+## Roadmap
+
+- Structured output: optional JSON/NDJSON findings for evidence indexing, dashboards, and automated escalation.
+- Temporal drift: local `diff-audits.sh` comparison between previous and current captures for the same host.
+- Report generation: richer Markdown evidence pack generation from captured outputs, beyond the current summary tally.
+- Asset labels: optional local metadata fields such as environment, owner, region, and service criticality without embedding customer-specific data in the skill.
 
 ## References
 
