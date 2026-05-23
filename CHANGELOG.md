@@ -7,6 +7,14 @@ This project follows a pragmatic versioning model while the skill stabilizes:
 - `0.x`: active design iteration.
 - `1.x`: stable public skill interface and report contract.
 
+## [0.3.0] - 2026-05-23
+
+### Added
+
+- `references/L7-agent-safety-evolution.md` for prompt-injection handling, memory-poisoning guardrails, tool-output distrust, and controlled skill improvement.
+- README guidance and references for agent safety, OWASP LLM risks, memory guardrails, and human-reviewed improvement candidates.
+- Final report requirement for suspicious-instruction observations and sanitized skill improvement candidates.
+
 ## [0.2.1] - 2026-05-23
 
 ### Added
