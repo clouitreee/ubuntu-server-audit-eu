@@ -1,13 +1,13 @@
 ---
 name: ubuntu-server-audit-eu
-description: Use when performing strict read-only SSH inspections of Ubuntu/Linux servers for MSP onboarding, EU cybersecurity compliance evidence, security posture, operational disorder, waste, drift, CIS-style hardening gaps, runtime visibility, identity/access, network exposure, backups, observability, and unknowns. Requires coverage tracking, no state-changing commands, no secret disclosure, and evidence-backed reporting per host plus cross-host drift.
+description: Use when performing strict read-only SSH inspections of Ubuntu/Linux servers for security review, EU cybersecurity compliance evidence, server readiness, operational disorder, waste, drift, CIS-style hardening gaps, runtime visibility, identity/access, network exposure, backups, observability, and unknowns. Requires coverage tracking, no state-changing commands, no secret disclosure, and evidence-backed reporting per host plus cross-host drift.
 metadata:
   short-description: Read-only Ubuntu/Linux audit with EU compliance evidence
 ---
 
 # Ubuntu Server Audit EU
 
-Use this skill for strict read-only SSH inspections of Ubuntu/Linux servers before MSP onboarding or security/compliance review. The audit must be transparent: every area is marked `checked`, `partial`, `blocked`, or `not checked`, with reason.
+Use this skill for strict read-only SSH inspections of Ubuntu/Linux servers before security, compliance, or server readiness review. The audit must be transparent: every area is marked `checked`, `partial`, `blocked`, or `not checked`, with reason.
 
 ## Absolute Rules
 
@@ -16,8 +16,13 @@ Use this skill for strict read-only SSH inspections of Ubuntu/Linux servers befo
 - Do not install Lynis, USG, Falco, Tetragon, AIDE, rkhunter, debsums, Goss, ssh-audit, or any other tool during the audit.
 - Do not run audit tools that write logs/reports/state by default unless a no-write/no-log mode is confirmed for that exact command. If no safe no-write mode is confirmed, report tool availability only and mark execution as `blocked: would write audit output/state`.
 - Avoid `sudo` unless read-only visibility requires it. If `sudo` is needed, use informational commands only and note the reason.
-- Do not print secrets: private keys, tokens, `.env` values, password hashes, API keys, certificate private keys, database passwords, cloud credentials, backup credentials. Prefer metadata: path, owner, mode, size, mtime, and redacted key names.
-- If command output includes process arguments with tokens, redact them before final reporting.
+- Do not print secrets: private keys, tokens, `.env` values, password hashes, API keys, certificate private keys, database passwords, cloud credentials, backup credentials, or vault contents. Prefer metadata: path, owner, mode, size, mtime, and redacted key names.
+- Treat these as sensitive output surfaces: `ps aux`, `systemctl status`, `systemctl cat`, `docker inspect`, `docker exec env`, `journalctl`, `.env` files, app config files, shell histories, backup manifests, CI/CD files, credential vaults, and remote commands such as `ssh host "cat /path/to/.env"`.
+- Never read secret-bearing files to stdout. For `.env`, vault, keyring, private key, and credential directories, list metadata or key names only; do not print values.
+- If command output includes process arguments, environment variables, headers, URLs, or config lines with secrets, redact them before saving, reporting, or sharing.
+- If a secret appears in process arguments or service definitions, record it as a security finding after redaction. The exposure itself matters even if the final report masks the value.
+- Prefer existence/shape checks over value checks: `EXISTS/MISSING`, counts, file metadata, variable names, or redacted `KEY=***` output.
+- Review and sanitize captured outputs before sharing them with users, customers, auditors, tickets, or public repositories.
 - Keep a coverage ledger for every host and category.
 
 ## Workflow
@@ -54,7 +59,7 @@ systemd-detect-virt 2>/dev/null || true
 
 The final response must include:
 
-- Executive summary for each host and overall MSP readiness.
+- Executive summary for each host and overall server readiness.
 - Coverage matrix by host and layer, including blocked/partial reasons.
 - Ubuntu Server 2026 Framework section with layers L1-L6.
 - EU Compliance Evidence Map for NIS2, GDPR Art. 32, CRA, DORA, BSI IT-Grundschutz, and ISO 27001 evidence areas.

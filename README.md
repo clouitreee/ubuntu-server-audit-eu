@@ -1,6 +1,7 @@
 # ubuntu-server-audit-eu
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-0.2.1-blue.svg)](CHANGELOG.md)
 [![Read-only](https://img.shields.io/badge/mode-read--only-brightgreen.svg)](SKILL.md)
 [![Ubuntu](https://img.shields.io/badge/Ubuntu-24.04%20LTS-orange.svg)](https://ubuntu.com/server)
 [![Agent Skill](https://img.shields.io/badge/agent--skill-Codex%20%7C%20Claude%20%7C%20Gemini%20%7C%20opencode-black.svg)](SKILL.md)
@@ -8,22 +9,24 @@
 ```text
 +------------------------------------------------------------+
 | ubuntu-server-audit-eu                                     |
-| Deep read-only Ubuntu/Linux audit for MSP onboarding,       |
+| Deep read-only Ubuntu/Linux audit for server security,      |
 | security posture, drift, and EU compliance evidence.        |
 +------------------------------------------------------------+
 ```
 
-`ubuntu-server-audit-eu` is a portable agent skill for strict read-only SSH inspections of Ubuntu/Linux servers. It is designed for MSP readiness, operational disorder review, security hardening evidence, cross-host drift, and EU cybersecurity compliance mapping.
+`ubuntu-server-audit-eu` is a portable agent skill for strict read-only SSH inspections of Ubuntu/Linux servers. It is designed for server security review, operational disorder analysis, hardening evidence, cross-host drift, and EU cybersecurity compliance mapping.
 
 It is intentionally plain Markdown + shell so it can be used by Codex, Claude Code, Gemini CLI, opencode, Cursor-style agents, and other agentic CLIs that understand repository-local instructions.
 
 The skill does not remediate, install tools, clean files, restart services, update packages, or write audit artifacts to the target server. If a tool or baseline is missing, the report must say `partial` or `blocked` and explain why.
 
+Current version: `0.2.1`. See [CHANGELOG.md](CHANGELOG.md) for release history.
+
 ## What It Covers
 
 - Ubuntu Server 2026 technical framework: eBPF/runtime, CIS-style hardening, identity/SSH, network exposure, system maintenance, operations, supply chain, containers, and drift.
 - EU compliance evidence overlay: NIS2 Art. 21, GDPR Art. 32, CRA, DORA, BSI IT-Grundschutz, and ISO 27001-style evidence areas.
-- MSP onboarding posture: asset inventory, patching, backups, monitoring, logs, access control, exposed services, documentation gaps, and unknowns.
+- Server readiness posture: asset inventory, patching, backups, monitoring, logs, access control, exposed services, documentation gaps, and unknowns.
 - Read-only discipline: no package installs, no service changes, no file edits, no cleanup, no secret disclosure.
 
 ## Repository Layout
@@ -95,7 +98,14 @@ scripts/generate-report.sh core-audit.txt
 scripts/generate-report.sh core-audit.txt edge-audit.txt dmz-audit.txt
 ```
 
-Review and redact local outputs before sharing. Some process lists can expose command-line tokens if applications run with secrets in argv.
+Review and redact local outputs before sharing. Process lists, service definitions, container metadata, logs, shell histories, and `.env`-style files can expose tokens, passwords, API keys, headers, database URLs, or cloud credentials.
+
+Secret-safe handling rules:
+
+- Do not print secret-bearing file contents. List path, owner, mode, size, mtime, key names, or `EXISTS/MISSING` instead.
+- Redact values before saving or sharing: use `KEY=***`, `--token [REDACTED]`, `Authorization: [REDACTED]`, and similar patterns.
+- Treat secrets in process arguments or systemd unit definitions as findings after redaction.
+- Do not publish raw audit outputs to GitHub, tickets, customer portals, or auditor evidence rooms until they have been reviewed.
 
 Expected output includes:
 
@@ -115,7 +125,16 @@ This skill is intentionally conservative:
 - Tools such as Lynis, USG, rkhunter, Falco, Goss, and ansible-lockdown are not installed during the audit.
 - Tools that write logs/reports/state are not executed unless a no-write/no-log mode is confirmed.
 - Secrets are not printed. Secret scans report file paths only.
+- `ps`, `systemctl`, `docker`, `journalctl`, and config/log reads are treated as secret-risk surfaces and must be redacted before reporting.
 - Restore tests, remediation, package updates, firewall changes, and service restarts require explicit authorization outside this skill.
+
+## Versioning
+
+The project uses pragmatic pre-1.0 versioning while the public skill interface stabilizes:
+
+- `0.x`: active design iteration, report contract may improve.
+- `1.x`: stable public skill interface and report contract.
+- Patch releases such as `0.2.1` are for safety, documentation, and script hardening that preserve the existing workflow.
 
 ## References
 

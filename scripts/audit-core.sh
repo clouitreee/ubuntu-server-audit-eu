@@ -5,6 +5,18 @@ section() {
   printf '\n===== %s =====\n' "$1"
 }
 
+redact() {
+  sed -E \
+    -e 's/--token([=[:space:]])[^[:space:]]+/--token\1[REDACTED]/gI' \
+    -e 's/--api-?key([=[:space:]])[^[:space:]]+/--api-key\1[REDACTED]/gI' \
+    -e 's/--password([=[:space:]])[^[:space:]]+/--password\1[REDACTED]/gI' \
+    -e 's/(Authorization:[[:space:]]*)(Bearer|Basic)[[:space:]]+[^[:space:]]+/\1\2 [REDACTED]/gI' \
+    -e 's/(X-Auth-Key:[[:space:]]*)[^[:space:]]+/\1[REDACTED]/gI' \
+    -e 's/(X-Auth-Email:[[:space:]]*)[^[:space:]]+/\1[REDACTED]/gI' \
+    -e 's#(://[^:/[:space:]]+:)[^@/[:space:]]+@#\1[REDACTED]@#g' \
+    -e 's/([A-Z0-9_]*(TOKEN|SECRET|PASSWORD|PASSWD|API_KEY|AUTH_KEY|PRIVATE_KEY|ACCESS_KEY|WEBHOOK)[A-Z0-9_]*=)[^[:space:]]+/\1***/gI'
+}
+
 section PREFLIGHT
 hostnamectl 2>/dev/null
 uname -a
@@ -43,7 +55,7 @@ ip -br addr
 ip route
 ss -tulpen
 ss -tnp state established 2>/dev/null || true
-systemctl status fail2ban --no-pager 2>/dev/null || true
+systemctl status fail2ban --no-pager 2>/dev/null | redact || true
 resolvectl status 2>/dev/null || cat /etc/resolv.conf 2>/dev/null
 
 section OPERATIONS
@@ -51,8 +63,8 @@ df -hT
 df -ih
 findmnt
 free -h
-ps aux --sort=-%mem | sed -E 's/--token[[:space:]]+[^[:space:]]+/--token [REDACTED]/g' | head -30
-journalctl -p err -n 50 --no-pager 2>/dev/null
+ps aux --sort=-%mem | redact | head -30
+journalctl -p err -n 50 --no-pager 2>/dev/null | redact
 du -xhd1 / 2>/dev/null | sort -h
 du -xhd1 /var 2>/dev/null | sort -h
 du -xhd1 /home 2>/dev/null | sort -h

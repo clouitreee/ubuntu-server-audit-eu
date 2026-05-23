@@ -7,6 +7,13 @@ This project follows a pragmatic versioning model while the skill stabilizes:
 - `0.x`: active design iteration.
 - `1.x`: stable public skill interface and report contract.
 
+## [0.2.1] - 2026-05-23
+
+### Added
+
+- Explicit secret-safe audit handling rules for process lists, systemd output, Docker metadata, logs, `.env` files, vaults, and remote command output.
+- Stronger automatic redaction in `scripts/audit-core.sh` for token, password, API key, auth header, credential URL, and env-var patterns.
+
 ## [0.2.0] - 2026-05-23
 
 ### Added
@@ -28,4 +35,4 @@ This project follows a pragmatic versioning model while the skill stabilizes:
 
 - Initial public skill for read-only Ubuntu/Linux server audits.
 - EU cybersecurity evidence mapping for NIS2, GDPR Art. 32, CRA, DORA, BSI IT-Grundschutz, and ISO 27001-style evidence areas.
-- MSP readiness, drift, security posture, and operations coverage.
+- Server readiness, drift, security posture, and operations coverage.
