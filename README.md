@@ -1,5 +1,10 @@
 # ubuntu-server-audit-eu
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Read-only](https://img.shields.io/badge/mode-read--only-brightgreen.svg)](SKILL.md)
+[![Ubuntu](https://img.shields.io/badge/Ubuntu-24.04%20LTS-orange.svg)](https://ubuntu.com/server)
+[![Agent Skill](https://img.shields.io/badge/agent--skill-Codex%20%7C%20Claude%20%7C%20Gemini%20%7C%20opencode-black.svg)](SKILL.md)
+
 ```text
 +------------------------------------------------------------+
 | ubuntu-server-audit-eu                                     |
@@ -88,7 +93,7 @@ Expected output includes:
 
 - Executive summary for each host.
 - Coverage matrix with `checked`, `partial`, `blocked`, or `not checked`.
-- Ubuntu Server 2026 Framework section with layers 0-6.
+- Ubuntu Server 2026 Framework section with layers L1-L6.
 - EU Compliance Evidence Map.
 - Top findings ordered by severity.
 - Cross-host drift summary.
