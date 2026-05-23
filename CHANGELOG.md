@@ -7,6 +7,15 @@ This project follows a pragmatic versioning model while the skill stabilizes:
 - `0.x`: active design iteration.
 - `1.x`: stable public skill interface and report contract.
 
+## [0.5.0] - 2026-05-23
+
+### Added
+
+- `references/L9-secrets-and-persistence-drift.md` for metadata-only secret path discovery, unpackaged systemd unit drift, SSH authorized key drift, known-hosts external trust indicators, DORA asset register discovery, ISO 27001:2022 Annex A mapping, and ENISA/NIS2 mapping guidance.
+- `AGENTS.md` so agentic CLIs can discover the repository behavior when used directly in a workspace.
+- GitHub Actions ShellCheck workflow for Bash script validation.
+- `audit-core.sh` collection for likely secret file metadata, unpackaged systemd units, recent authorized keys, hashed external known-host indicators, and asset/inventory/CMDB evidence paths.
+
 ## [0.4.0] - 2026-05-23
 
 ### Added

@@ -138,6 +138,15 @@ lastlog -t 90 2>/dev/null || true
 who
 w
 find /home /root -maxdepth 3 -name authorized_keys -type f -printf '%p %u %g %m %TY-%Tm-%Td %TH:%TM\n' 2>/dev/null
+find /home /root -name authorized_keys -type f -mtime -30 -printf 'RECENT_AUTHORIZED_KEYS %TY-%Tm-%Td %TH:%TM %s %p %u %g %m\n' 2>/dev/null
+grep -rh "" /home/*/.ssh/known_hosts /root/.ssh/known_hosts 2>/dev/null \
+  | awk '{print $1}' \
+  | grep -vE '^(10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.|localhost|\[)' \
+  | sed 's/,.*//' \
+  | sort -u \
+  | while read -r host; do
+      printf '%s\n' "$host" | sha256sum 2>/dev/null | awk '{print "KNOWN_HOST_EXTERNAL_SHA256_12 " substr($1,1,12)}'
+    done
 
 section NETWORK
 ip -br addr
@@ -160,7 +169,7 @@ du -xhd1 /var 2>/dev/null | sort -h
 du -xhd1 /home 2>/dev/null | sort -h
 find /var/log -xdev -type f -size +100M -printf '%s %p\n' 2>/dev/null | sort -n
 find /tmp /var/tmp -xdev -mindepth 1 -maxdepth 2 -printf '%TY-%Tm-%Td %TH:%TM %s %p\n' 2>/dev/null | sort | tail -100
-systemctl list-timers --all --no-pager | egrep -i 'backup|borg|restic|rsync|duplicity|snapshot|dump' || true
+systemctl list-timers --all --no-pager | grep -Ei 'backup|borg|restic|rsync|duplicity|snapshot|dump' || true
 
 section SUPPLY_CHAIN
 apt list --upgradable 2>/dev/null || true
@@ -181,6 +190,23 @@ journalctl --disk-usage 2>/dev/null || true
 journalctl --list-boots --no-pager 2>/dev/null || true
 cat /etc/issue /etc/issue.net 2>/dev/null || true
 grep -RInE 'TMOUT|PASS_MAX_DAYS|PASS_MIN_DAYS|pam_pwquality|pam_faillock|pam_google_authenticator|pam_u2f|pam_oath' /etc/login.defs /etc/profile /etc/profile.d /etc/pam.d 2>/dev/null || true
+
+section SECRETS_AND_DRIFT
+find /etc /home /root /var/www /opt /srv -xdev -type f \
+  \( -name '*.env' -o -name '.env*' -o -name '*.pem' -o -name '*.key' \
+     -o -name 'id_rsa' -o -name 'id_ed25519' -o -name 'credentials' \
+     -o -name 'credentials.json' -o -name 'secrets.yml' -o -name 'secrets.yaml' \
+     -o -name 'vault*' -o -name '*.tfvars' -o -name '*.kubeconfig' \) \
+  -printf '%TY-%Tm-%Td %TH:%TM %s %p %u %g %m\n' 2>/dev/null | sort
+find /etc/systemd /usr/local/lib/systemd /usr/lib/systemd /lib/systemd -type f \
+  \( -name '*.service' -o -name '*.timer' -o -name '*.socket' -o -name '*.path' \) 2>/dev/null \
+  | while read -r unit; do
+      dpkg -S "$unit" >/dev/null 2>&1 || printf 'UNPACKAGED_SYSTEMD_UNIT %s\n' "$unit"
+    done
+find /etc /opt /srv /root -maxdepth 5 \
+  \( -iname 'asset*' -o -iname '*inventory*' -o -iname '*cmdb*' \
+     -o -iname '*incident*' -o -iname '*continuity*' -o -iname '*restore*' \) \
+  -printf '%TY-%Tm-%Td %TH:%TM %s %p %u %g %m\n' 2>/dev/null | sort
 
 section SUDO_READONLY
 if [ "$WITH_SUDO" -eq 1 ]; then
