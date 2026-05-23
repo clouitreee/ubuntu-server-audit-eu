@@ -7,6 +7,12 @@ This project follows a pragmatic versioning model while the skill stabilizes:
 - `0.x`: active design iteration.
 - `1.x`: stable public skill interface and report contract.
 
+## [0.5.1] - 2026-05-23
+
+### Added
+
+- Explicit warning that secret-bearing paths are sensitive metadata and may require summarization or redaction before external sharing.
+
 ## [0.5.0] - 2026-05-23
 
 ### Added

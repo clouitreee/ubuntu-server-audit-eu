@@ -17,6 +17,7 @@ Use this skill for strict read-only SSH inspections of Ubuntu/Linux servers befo
 - Do not run audit tools that write logs/reports/state by default unless a no-write/no-log mode is confirmed for that exact command. If no safe no-write mode is confirmed, report tool availability only and mark execution as `blocked: would write audit output/state`.
 - Avoid `sudo` unless read-only visibility requires it. If `sudo` is needed, use informational commands only and note the reason.
 - Do not print secrets: private keys, tokens, `.env` values, password hashes, API keys, certificate private keys, database passwords, cloud credentials, backup credentials, or vault contents. Prefer metadata: path, owner, mode, size, mtime, and redacted key names.
+- Treat secret-bearing paths as sensitive metadata. Even without file contents, paths can reveal customers, environments, application names, technologies, or internal architecture.
 - Treat these as sensitive output surfaces: `ps aux`, `systemctl status`, `systemctl cat`, `docker inspect`, `docker exec env`, `journalctl`, `.env` files, app config files, shell histories, backup manifests, CI/CD files, credential vaults, and remote commands such as `ssh host "cat /path/to/.env"`.
 - Never read secret-bearing files to stdout. For `.env`, vault, keyring, private key, and credential directories, list metadata or key names only; do not print values.
 - If command output includes process arguments, environment variables, headers, URLs, or config lines with secrets, redact them before saving, reporting, or sharing.

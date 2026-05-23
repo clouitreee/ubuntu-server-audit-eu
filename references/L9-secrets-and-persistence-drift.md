@@ -6,6 +6,8 @@ Use this layer for read-only discovery of likely secret files, unpackaged persis
 
 Only collect metadata: path, owner, group, mode, size, and mtime. Do not run `cat`, `head`, `tail`, `grep`, `strings`, or content scanners against secret-bearing files unless the user explicitly authorizes a separate secret review.
 
+Paths are sensitive metadata. A path can reveal customers, environments, application names, technologies, deployment layout, or internal architecture even when file contents are not shown. Share L9 evidence only with authorized audiences, and summarize or redact paths before putting reports into public repositories, broad ticket queues, customer portals, or external evidence rooms.
+
 ```bash
 find /etc /home /root /var/www /opt /srv -xdev -type f \
   \( -name '*.env' -o -name '.env*' -o -name '*.pem' -o -name '*.key' \
