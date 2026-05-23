@@ -8,7 +8,9 @@
 +------------------------------------------------------------+
 ```
 
-`ubuntu-server-audit-eu` is an Agent/Codex skill for strict read-only SSH inspections of Ubuntu/Linux servers. It is designed for MSP readiness, operational disorder review, security hardening evidence, cross-host drift, and EU cybersecurity compliance mapping.
+`ubuntu-server-audit-eu` is a portable agent skill for strict read-only SSH inspections of Ubuntu/Linux servers. It is designed for MSP readiness, operational disorder review, security hardening evidence, cross-host drift, and EU cybersecurity compliance mapping.
+
+It is intentionally plain Markdown + shell so it can be used by Codex, Claude Code, Gemini CLI, opencode, Cursor-style agents, and other agentic CLIs that understand repository-local instructions.
 
 The skill does not remediate, install tools, clean files, restart services, update packages, or write audit artifacts to the target server. If a tool or baseline is missing, the report must say `partial` or `blocked` and explain why.
 
@@ -19,16 +21,50 @@ The skill does not remediate, install tools, clean files, restart services, upda
 - MSP onboarding posture: asset inventory, patching, backups, monitoring, logs, access control, exposed services, documentation gaps, and unknowns.
 - Read-only discipline: no package installs, no service changes, no file edits, no cleanup, no secret disclosure.
 
-## Install
+## Repository Layout
 
-Copy the skill folder into your Codex skills directory:
+```text
+ubuntu-server-audit-eu/
+├── SKILL.md
+├── README.md
+├── references/
+│   ├── L1-runtime-ebpf.md
+│   ├── L2-cis-benchmark.md
+│   ├── L3-identity-ssh.md
+│   ├── L4-network-exposure.md
+│   ├── L5-eu-compliance.md
+│   └── L6-operations.md
+└── scripts/
+    ├── audit-core.sh
+    └── generate-report.sh
+```
+
+The root `SKILL.md` is the entry point. The `references/` files keep deep checks out of context until needed. The scripts are read-only helpers; they do not install packages, restart services, edit files, clean logs, or remediate.
+
+## Install For Agent CLIs
+
+### Codex
 
 ```bash
 mkdir -p ~/.codex/skills
-cp -R skills/ubuntu-server-audit-eu ~/.codex/skills/
+cp -R ubuntu-server-audit-eu ~/.codex/skills/
 ```
 
-Then restart Codex so the skill metadata is loaded.
+Restart Codex so the skill metadata is loaded.
+
+### Claude Code
+
+Use this repo as a project skill or copy it into your Claude skills directory if your setup supports local skills. The root `SKILL.md` follows the standard skill frontmatter pattern and keeps detailed references in `references/`.
+
+### Gemini CLI, opencode, Cursor, And Other Agents
+
+Keep the repository in the workspace and tell the agent:
+
+```text
+Use the local ubuntu-server-audit-eu skill. Read SKILL.md first, then load only the reference files needed for the requested audit layers.
+```
+
+The skill does not depend on Codex-specific APIs.
 
 ## Use
 
@@ -37,6 +73,16 @@ Ask Codex to inspect one or more hosts in read-only mode:
 ```text
 Use ubuntu-server-audit-eu to audit ssh core and ssh edge in strict read-only mode.
 ```
+
+For a fast baseline collection, an agent may run the script over SSH without copying it to the server:
+
+```bash
+ssh core 'bash -s' < scripts/audit-core.sh > core-audit.txt
+ssh edge 'bash -s' < scripts/audit-core.sh > edge-audit.txt
+scripts/generate-report.sh core-audit.txt edge-audit.txt
+```
+
+Review and redact local outputs before sharing. Some process lists can expose command-line tokens if applications run with secrets in argv.
 
 Expected output includes:
 
